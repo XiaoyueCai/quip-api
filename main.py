@@ -1,9 +1,14 @@
 import json
+import time
+
 import quipclient as quip
 import websocket
+import _thread as thread
 from config import config
 from slack import send_message
 from logger import logger
+
+HEARTBEAT_INTERVAL = 20
 
 
 def open_websocket(url):
@@ -27,11 +32,18 @@ def open_websocket(url):
         logger.error("error:")
         logger.error(error)
 
-    def on_close(ws):
-        logger.info("### connection closed ###")
+    def on_close(ws, status_code, msg):
+        logger.info(f"### connection closed, status code is {status_code}, msg is{msg} ###")
 
     def on_open(ws):
         logger.info("### connection established ###")
+
+        def run(*args):
+            while True:
+                time.sleep(HEARTBEAT_INTERVAL)
+                ws.send(json.dumps({"type": "heartbeat"}))
+
+        thread.start_new_thread(run, ())
 
     # websocket.enableTrace(True)
     ws = websocket.WebSocketApp(
