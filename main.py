@@ -5,7 +5,7 @@ import quipclient as quip
 import websocket
 import _thread as thread
 from config import config
-from slack import send_message
+from slack import send_message, status_channel
 from logger import logger
 
 HEARTBEAT_INTERVAL = 20
@@ -33,10 +33,14 @@ def open_websocket(url):
         logger.error(error)
 
     def on_close(ws, status_code, msg):
-        logger.info(f"### connection closed, status code is {status_code}, msg is{msg} ###")
+        log_msg = f"### connection closed, status code is {status_code}, msg is{msg} ###"
+        logger.info(log_msg)
+        send_message(msg=log_msg, channel=status_channel)
 
     def on_open(ws):
-        logger.info("### connection established ###")
+        msg = "### connection established ###"
+        logger.info(msg)
+        send_message(msg=msg, channel=status_channel)
 
         def run(*args):
             while True:
