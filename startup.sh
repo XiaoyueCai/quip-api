@@ -1,2 +1,2 @@
 source venv/bin/activate
-nohup python main.py > output.log 2>&1 &
+nohup python main.py > /dev/null 2>&1 &
